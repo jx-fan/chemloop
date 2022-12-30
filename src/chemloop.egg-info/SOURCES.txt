@@ -1,0 +1,16 @@
+README.md
+pyproject.toml
+src/chemloop/__init__.py
+src/chemloop.egg-info/PKG-INFO
+src/chemloop.egg-info/SOURCES.txt
+src/chemloop.egg-info/dependency_links.txt
+src/chemloop.egg-info/requires.txt
+src/chemloop.egg-info/top_level.txt
+src/chemloop/core/__init__.py
+src/chemloop/core/chemical_loops.py
+src/chemloop/core/net_reactions.py
+src/chemloop/core/networks.py
+src/chemloop/core/redox_materials.py
+src/chemloop/data/__init__.py
+src/chemloop/utils/__init__.py
+src/chemloop/utils/mp_entries.py
