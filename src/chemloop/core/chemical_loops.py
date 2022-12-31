@@ -2,8 +2,7 @@ from chemloop.core.redox_materials import RedoxMaterialsSet
 from chemloop.core.net_reactions import NetReaction
 from rxn_network.reactions.basic import BasicReaction
 from rxn_network.reactions.computed import ComputedReaction
-from rxn_network.core.reaction import Reaction
-from typing import List, Union, Dict, Optional, Tuple, Set
+from typing import List, Union, Optional, Tuple, Set
 from pymatgen.core import Composition
 from abc import ABCMeta, abstractmethod
 

@@ -1,11 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from rxn_network.network.network import ReactionNetwork
 from rxn_network.entries.entry_set import GibbsEntrySet
-from typing import List, Set, Iterable, Tuple, Union
+from typing import List, Tuple, Union
 from rxn_network.pathways.balanced import BalancedPathway
 from rxn_network.pathways.solver import PathwaySolver
-from rxn_network.core.cost_function import CostFunction
 from rxn_network.reactions.computed import ComputedReaction
 from rxn_network.pathways.pathway_set import PathwaySet
 from rxn_network.costs.softplus import Softplus

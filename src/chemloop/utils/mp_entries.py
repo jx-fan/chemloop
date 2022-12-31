@@ -1,4 +1,4 @@
-from typing import Union, List, Set
+from typing import List, Set
 from pathlib import Path
 from chemloop.data import CL_AMMONIA_PATH, CL_COMBUSTION_PATH
 import json
@@ -43,5 +43,3 @@ def _get_file_paths(cations_in_redox_materials: List[str],
         binary_fn = "computed_str_entries_" + cations_in_redox_materials[0] + "_O_H_C_2021_11_10.json"
         entry_paths.append(CL_COMBUSTION_PATH / binary_fn)
         return entry_paths
-
-
