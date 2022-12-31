@@ -49,7 +49,7 @@ class NetReaction(BasicReaction):
             reducing_agent: Composition,
             products: List[Composition],
             data: Optional[Dict] = None
-    ) -> "NetRedoxReaction":
+    ) -> "NetReaction":
         """
         Balance the reaction. Oxidant and reducing agent to be specified as pymatgen.core.Composition. Products to be
         input as list of Composition object.

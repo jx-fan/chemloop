@@ -132,4 +132,3 @@ class RedoxMaterialsSet(collections.abc.MutableSet):
             del self.pd_dict
         except AttributeError:
             pass
-

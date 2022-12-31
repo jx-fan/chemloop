@@ -44,7 +44,7 @@ class ChemicalLoopTwoStep(AbstractChemicalLoop):
             net_rxn: The net reaction after completing one loop.
         """
         if len(redox_pair) != 2:
-            raise ValueError("Number of redox materials is not equal to 2. Current size: ", len(rp))
+            raise ValueError("Number of redox materials is not equal to 2. Current size: ", len(redox_pair))
         self._redox_pair = redox_pair
         self._net_rxn = net_rxn
         self._subreactions = self.set_subreactions(rxn_materials)

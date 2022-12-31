@@ -172,7 +172,6 @@ def save_balanced_paths(subrxns, paths_list, filename="results.log", all_paths=T
                     f.write(str(path))
                     f.write("\n\n")
             else:
-                f.write(f"Path 1\n")
+                f.write("Path 1\n")
                 f.write(str(path))
                 f.write("\n\n")
-
