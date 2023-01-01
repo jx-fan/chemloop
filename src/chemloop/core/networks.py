@@ -1,15 +1,16 @@
 from abc import ABCMeta, abstractmethod
-from rxn_network.network.network import ReactionNetwork
-from rxn_network.entries.entry_set import GibbsEntrySet
 from typing import List, Tuple, Union
-from rxn_network.pathways.balanced import BalancedPathway
-from rxn_network.pathways.solver import PathwaySolver
-from rxn_network.reactions.computed import ComputedReaction
-from rxn_network.pathways.pathway_set import PathwaySet
-from rxn_network.costs.softplus import Softplus
-from rxn_network.core.enumerator import Enumerator
+
 from chemloop.core.chemical_loops import AbstractChemicalLoop, ChemicalLoopTwoStep, ChemicalLoopThreeStep
 from chemloop.utils.mp_entries import get_entries_from_json, get_entries_from_api
+from rxn_network.core.enumerator import Enumerator
+from rxn_network.costs.softplus import Softplus
+from rxn_network.entries.entry_set import GibbsEntrySet
+from rxn_network.network.network import ReactionNetwork
+from rxn_network.pathways.balanced import BalancedPathway
+from rxn_network.pathways.pathway_set import PathwaySet
+from rxn_network.pathways.solver import PathwaySolver
+from rxn_network.reactions.computed import ComputedReaction
 
 
 class AbstractNetwork(metaclass=ABCMeta):
@@ -40,6 +41,7 @@ class ChemicalLoopNetwork(AbstractNetwork):
     """
     The object analysing the reaction networks in each chemical loop process steps.
     """
+
     def __init__(self,
                  chemical_loop: Union[ChemicalLoopTwoStep, ChemicalLoopThreeStep],
                  temps: List[float]
@@ -86,7 +88,8 @@ class ChemicalLoopNetwork(AbstractNetwork):
             filtered_entry_set = entry_set.filter_by_stability(e_above_hull)
             if include_compounds:
                 for c in list(self.chemical_loop.all_materials_set):
-                    filtered_entry_set.add(entry_set.get_min_entry_by_formula(c.reduced_formula))  # make sure materials in ReactionNetwork
+                    filtered_entry_set.add(
+                        entry_set.get_min_entry_by_formula(c.reduced_formula))  # make sure materials in ReactionNetwork
         else:
             raise ValueError("Wrong hull energy: ", e_above_hull)
         return filtered_entry_set
@@ -132,8 +135,8 @@ class ChemicalLoopNetwork(AbstractNetwork):
         computed_subrxns = []
         balanced_paths_cl = []
         for network, subrxn, temp in zip(networks,
-                                        subreactions,
-                                        self.temps):
+                                         subreactions,
+                                         self.temps):
             network.set_precursors(subrxn.reactants)
             for product in subrxn.products:
                 if product in self.chemical_loop.redox_pair:
@@ -163,9 +166,9 @@ class ChemicalLoopNetwork(AbstractNetwork):
 def save_balanced_paths(subrxns, paths_list, filename="results.log", all_paths=True):
     with open(filename, "w") as f:
         for subrxn, paths in zip(subrxns, paths_list):
-            f.write("=" * 30+"\n")
-            f.write(str(subrxn)+" (dG = "+str(round(subrxn.energy_per_atom, 3))+" eV/atom)\n")
-            f.write("=" * 30+"\n")
+            f.write("=" * 30 + "\n")
+            f.write(str(subrxn) + " (dG = " + str(round(subrxn.energy_per_atom, 3)) + " eV/atom)\n")
+            f.write("=" * 30 + "\n")
             if all_paths:
                 for idx, path in enumerate(paths):
                     f.write(f"Path {idx + 1}\n")

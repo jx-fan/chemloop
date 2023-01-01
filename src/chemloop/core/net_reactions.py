@@ -1,8 +1,9 @@
-import numpy as np
-from rxn_network.reactions.basic import BasicReaction
-from typing import List, Union, Optional, Dict, Set
-from pymatgen.core import Composition
 import warnings
+from typing import List, Union, Optional, Dict, Set
+
+import numpy as np
+from pymatgen.core import Composition
+from rxn_network.reactions.basic import BasicReaction
 
 
 class NetReaction(BasicReaction):
@@ -11,6 +12,7 @@ class NetReaction(BasicReaction):
     synthesis, the net reaction is:
         N2 + 3 H2 --> 2 NH3
     """
+
     def __init__(self,
                  oxidant: Composition,
                  reducing_agent: Composition,

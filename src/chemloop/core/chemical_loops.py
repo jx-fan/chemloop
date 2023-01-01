@@ -1,16 +1,18 @@
-from chemloop.core.redox_materials import RedoxMaterialsSet
+from abc import ABCMeta, abstractmethod
+from typing import List, Union, Optional, Tuple, Set
+
 from chemloop.core.net_reactions import NetReaction
+from chemloop.core.redox_materials import RedoxMaterialsSet
+from pymatgen.core import Composition
 from rxn_network.reactions.basic import BasicReaction
 from rxn_network.reactions.computed import ComputedReaction
-from typing import List, Union, Optional, Tuple, Set
-from pymatgen.core import Composition
-from abc import ABCMeta, abstractmethod
 
 
 class AbstractChemicalLoop(metaclass=ABCMeta):
     """
     Base definition for a chemical loop process.
     """
+
     @property
     @abstractmethod
     def subreactions(self) -> Tuple[Union[BasicReaction, ComputedReaction]]:
@@ -32,6 +34,7 @@ class ChemicalLoopTwoStep(AbstractChemicalLoop):
     MX1 + Red -> MX2 + ...
     MX2 + Oxd -> MX1 + ...
     """
+
     def __init__(self,
                  redox_pair: RedoxMaterialsSet,
                  net_rxn: NetReaction,
@@ -112,7 +115,7 @@ class ChemicalLoopTwoStep(AbstractChemicalLoop):
     def all_materials_set(self) -> Set[str]:
         mat_set = set()
         for subrxn in self.subreactions:
-            mat_set.update(set(subrxn.reactants+subrxn.products))
+            mat_set.update(set(subrxn.reactants + subrxn.products))
         return mat_set
 
     @property
@@ -128,7 +131,7 @@ class ChemicalLoopTwoStep(AbstractChemicalLoop):
 
     def __str__(self):
         rxns = [rxn.__str__() for rxn in self.subreactions]
-        rxns.append("="*len(max(rxns, key=len)))
+        rxns.append("=" * len(max(rxns, key=len)))
         rxns.append("Net rxn: " + str(self._net_rxn))
         return '\n'.join(rxns)
 

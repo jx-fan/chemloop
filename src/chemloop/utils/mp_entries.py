@@ -1,7 +1,8 @@
-from typing import List, Set
-from pathlib import Path
-from chemloop.data import CL_AMMONIA_PATH, CL_COMBUSTION_PATH
 import json
+from pathlib import Path
+from typing import List, Set
+
+from chemloop.data import CL_AMMONIA_PATH, CL_COMBUSTION_PATH
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 
@@ -24,7 +25,7 @@ def _get_file_paths(cations_in_redox_materials: List[str],
                     ) -> List[Path]:
     entry_paths = []
     if chemsys_net_rxn == {"O", "N", "H"}:  # chemical looping ammonia. Included the intermediate H2O.
-        base_entries_path = CL_AMMONIA_PATH/"computed_str_entries_O_N_H_2021_11_10.json"
+        base_entries_path = CL_AMMONIA_PATH / "computed_str_entries_O_N_H_2021_11_10.json"
         entry_paths.append(base_entries_path)
         if len(cations_in_redox_materials) == 1:
             binary_fn = "computed_str_entries_" + cations_in_redox_materials[0] + "_O_N_H_2021_11_10.json"
