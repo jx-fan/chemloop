@@ -1,16 +1,18 @@
-import collections
-from pymatgen.core import Composition
-from pymatgen.core.periodic_table import Element
+from collections.abc import MutableSet
 from pathlib import Path
 from typing import Set, Iterable
+
+from pymatgen.core import Composition
+from pymatgen.core.periodic_table import Element
 
 ENTRIES_DATA_PATH = Path("entries_data")
 
 
-class RedoxMaterialsSet(collections.abc.MutableSet):
+class RedoxMaterialsSet(MutableSet):
     """
     A container for manipulating redox materials.
     """
+
     def __init__(self, materials: Iterable[Composition]):
         """
         The supplied collection of Composition objects will automatically be converted to a set of unique items.
