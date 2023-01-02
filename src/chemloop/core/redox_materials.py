@@ -53,7 +53,7 @@ class RedoxMaterialsSet(MutableSet):
 
         """
         self.materials.discard(material)
-        self._clear__cache()
+        self._clear_cache()
 
     @staticmethod
     def _get_element_set(material: Composition, ele_type: str) -> Set[Element]:
