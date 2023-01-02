@@ -1,4 +1,3 @@
-from collections import Set
 from dataclasses import dataclass
 
 from pymatgen.core import Composition
@@ -16,7 +15,7 @@ class NetReaction:
         return [self.oxidant, self.reducing_agent, *self.products]
 
     @property
-    def chemical_system(self) -> Set[str]:
+    def chemical_system(self) -> set[str]:
         """Returns the chemical system as set of elements"""
         chemical_system = set()
         for c in self.compositions:
