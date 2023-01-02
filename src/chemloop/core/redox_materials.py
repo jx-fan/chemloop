@@ -1,4 +1,4 @@
-import collections
+from collections.abc import MutableSet
 from pathlib import Path
 from typing import Set, Iterable
 
@@ -8,7 +8,7 @@ from pymatgen.core.periodic_table import Element
 ENTRIES_DATA_PATH = Path("entries_data")
 
 
-class RedoxMaterialsSet(collections.abc.MutableSet):
+class RedoxMaterialsSet(MutableSet):
     """
     A container for manipulating redox materials.
     """
