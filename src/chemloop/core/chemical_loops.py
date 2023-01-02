@@ -50,12 +50,11 @@ class ChemicalLoopTwoStep(AbstractChemicalLoop):
             raise ValueError("Number of redox materials is not equal to 2. Current size: ", len(redox_pair))
         self._redox_pair = redox_pair
         self._net_rxn = net_rxn
-        self._subreactions = self.set_subreactions(rxn_materials)
-        # self.temp = temp
+        self._subreactions = self._set_subreactions(rxn_materials)
 
-    def set_subreactions(self,
-                         rxn_materials: Optional[List] = None
-                         ) -> Tuple[BasicReaction, BasicReaction]:
+    def _set_subreactions(self,
+                          rxn_materials: Optional[List] = None
+                          ) -> Tuple[BasicReaction, BasicReaction]:
         """
 
         Args:

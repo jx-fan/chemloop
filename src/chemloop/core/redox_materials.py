@@ -69,6 +69,7 @@ class RedoxMaterialsSet(MutableSet):
         """
         cations: Set[Element] = set()
         anions: Set[Element] = set()
+        material = material.remove_charges()
         for e in material.elements:
             if e.symbol in ["N", "O", "H", "F", "S"]:  # common CL processes
                 anions.add(e)
@@ -78,8 +79,6 @@ class RedoxMaterialsSet(MutableSet):
             return cations
         elif ele_type == "anion":
             return anions
-        else:
-            raise ValueError("Wrong element type: ", ele_type)
 
     def __len__(self):
         return len(self.materials)
