@@ -25,8 +25,17 @@ def test_chemical_system(ammonia_synthesis):
 
 
 def test_equation(ammonia_synthesis):
-    assert ammonia_synthesis.equation == "1 N2 + 3 H2 -> 2 H3N"
+    assert ammonia_synthesis.equation == "N2 + 3 H2 -> 2 H3N"
 
 
-def test_balanced(ammonia_synthesis):
+def test_balanced_reaction(ammonia_synthesis):
     assert ammonia_synthesis.balanced
+
+
+def test_unbalanced_reaction():
+    unbalanced = NetReaction(oxidant=Composition("N2"),
+                             reducing_agent=Composition("H2"),
+                             products=[Composition("NH3")],
+                             coefficients=[-1, -1, 1]
+                             )
+    assert not unbalanced.balanced
