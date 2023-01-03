@@ -12,6 +12,7 @@ classifiers = [
 ]
 dependencies = [
     "reaction-network",
+    "dotenv"
 ]
 dynamic = ["version"]
 

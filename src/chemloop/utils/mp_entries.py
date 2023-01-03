@@ -1,17 +1,24 @@
 import json
+import os
 from pathlib import Path
 from typing import List, Set
+from dotenv import load_dotenv
 
 from chemloop.data import CL_AMMONIA_PATH, CL_COMBUSTION_PATH
+from mp_api.client import MPRester
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 
-def get_entries_from_api():
-    pass
+def get_entries_from_api(chemsys) -> List[ComputedStructureEntry]:
+    load_dotenv()
+    mp_api_key = os.getenv("MP_API_KEY") or ""
+    with MPRester(mp_api_key) as mpr:
+        entries = mpr.get_entries_in_chemsys(chemsys)
+    return entries
 
 
 def get_entries_from_json(cations_in_redox_materials: List[str],
-                          chemsys_net_rxn: Set[str]):
+                          chemsys_net_rxn: Set[str]) -> List[ComputedStructureEntry]:
     entries = []
     entry_paths = _get_file_paths(cations_in_redox_materials, chemsys_net_rxn)
     for path in entry_paths:

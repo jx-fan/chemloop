@@ -1,8 +1,11 @@
+import io
 from abc import ABCMeta, abstractmethod
+from contextlib import redirect_stdout
 from typing import List, Tuple, Union
 
 from chemloop.core.chemical_loops import AbstractChemicalLoop, ChemicalLoopTwoStep, ChemicalLoopThreeStep
 from chemloop.utils.mp_entries import get_entries_from_json, get_entries_from_api
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 from rxn_network.core.enumerator import Enumerator
 from rxn_network.costs.softplus import Softplus
 from rxn_network.entries.entry_set import GibbsEntrySet
@@ -44,7 +47,8 @@ class ChemicalLoopNetwork(AbstractNetwork):
 
     def __init__(self,
                  chemical_loop: Union[ChemicalLoopTwoStep, ChemicalLoopThreeStep],
-                 temps: List[float]
+                 temps: List[float],
+                 entries_from: str,
                  ):
         """
         Supply the type of chemical looping process and the temperatures each subreaction is carried out. Ensure the
@@ -52,17 +56,33 @@ class ChemicalLoopNetwork(AbstractNetwork):
         Args:
             chemical_loop: Chemical loop object defining the redox materials and the reactions.
             temps: List of float numbers defining the reaction temperatures in Kelvin.
+            entries_from: Where to find the entries of the materials. Can be from local json files ("json") or through
+            materials project API ("api")
         """
         self.chemical_loop = chemical_loop
         self.temps = temps
+        self.entries_from = entries_from
         if self.chemical_loop.number_of_steps != len(self.temps):
             raise ValueError("The input of temperatures do not match the number of steps. Please double check")
         self._networks = None
 
+    def _get_entries(self) -> List[ComputedStructureEntry]:
+        print(f"Source entries from: {self.entries_from}")
+        if self.entries_from == "json":
+            cations = [e.symbol for e in self.chemical_loop.redox_pair.cations]
+            entries = get_entries_from_json(cations_in_redox_materials=sorted(cations),
+                                            chemsys_net_rxn={cation for cation in self.chemical_loop.chemical_system
+                                                             if cation not in cations})
+        elif self.entries_from == "api":
+            entries = get_entries_from_api('-'.join(self.chemical_system))
+        else:
+            raise ValueError("The method of sourcing entries is currently not supported.")
+        return entries
+
     def _get_gibbs_entry_set(self,
+                             entries: List[ComputedStructureEntry],
                              temp: float,
                              e_above_hull: float,
-                             from_json=True,
                              include_compounds=True,
                              ) -> GibbsEntrySet:
         """
@@ -70,19 +90,11 @@ class ChemicalLoopNetwork(AbstractNetwork):
         Args:
             temp: Reaction temperature in K.
             e_above_hull: Energy above hull used to filter out unstable materials in the GibbsEntrySet
-            from_json: Whether or not to read the materials data from json files.
 
         Returns:
             GibbsEntrySet object for each subreaction.
 
         """
-        if from_json:
-            cations = [e.symbol for e in self.chemical_loop.redox_pair.cations]
-            entries = get_entries_from_json(cations_in_redox_materials=sorted(cations),
-                                            chemsys_net_rxn={cation for cation in self.chemical_loop.chemical_system
-                                                             if cation not in cations})
-        else:
-            entries = get_entries_from_api()
         entry_set = GibbsEntrySet.from_computed_entries(entries, temp, include_nist_data=True)
         if e_above_hull >= 0:
             filtered_entry_set = entry_set.filter_by_stability(e_above_hull)
@@ -104,7 +116,14 @@ class ChemicalLoopNetwork(AbstractNetwork):
             A list of GibbsEntrySet for constructing the reaction networks.
 
         """
-        return [self._get_gibbs_entry_set(temp, e_above_hull=e_above_hull) for temp in self.temps]
+        total_entries = self._get_entries()
+        entry_sets = []
+        for temp, subrxn in zip(self.temps, self.chemical_loop.subreactions):
+            entry_set = self._get_gibbs_entry_set(total_entries,
+                                                  temp,
+                                                  e_above_hull)
+            entry_sets.append(entry_set.get_subset_in_chemsys(subrxn.chemical_system.split("-")))
+        return entry_sets
 
     def build_networks(self,
                        enumerator: Enumerator,
@@ -129,7 +148,7 @@ class ChemicalLoopNetwork(AbstractNetwork):
             networks.append(rn)
         self._networks = networks
 
-    def solve_pathways(self, k=5, max_num_combos=5) -> Tuple[List[ComputedReaction], List[PathwaySet]]:
+    def solve_pathways(self, k=5, max_num_combos=5, verbose=True) -> Tuple[List[ComputedReaction], List[PathwaySet]]:
         networks = self._networks
         subreactions = self.chemical_loop.subreactions
         computed_subrxns = []
@@ -141,7 +160,11 @@ class ChemicalLoopNetwork(AbstractNetwork):
             for product in subrxn.products:
                 if product in self.chemical_loop.redox_pair:
                     network.set_target(product)
-            paths = network.find_pathways(subrxn.products, k=k)
+            if not verbose:
+                with redirect_stdout(io.StringIO()):
+                    paths = network.find_pathways(subrxn.products, k=k)
+            else:
+                paths = network.find_pathways(subrxn.products, k=k)
             cf = Softplus(temp)
             ps = PathwaySolver(paths, network.entries, cf)
             entries = network.entries
@@ -159,8 +182,8 @@ class ChemicalLoopNetwork(AbstractNetwork):
         return computed_subrxns, balanced_paths_cl
 
     @property
-    def chemical_system(self):
-        pass
+    def chemical_system(self) -> set[str]:
+        return self.chemical_loop.chemical_system
 
 
 def save_balanced_paths(subrxns, paths_list, filename="results.log", all_paths=True):

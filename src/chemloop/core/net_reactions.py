@@ -8,7 +8,7 @@ class NetReaction:
     oxidant: Composition
     reducing_agent: Composition
     products: list[Composition]
-    coefficients: list  # coefficients for reactants are negative. e.g. N2 + 3 H2 -> 2 NH3, coefficients: [-1, -3, 2]
+    coefficients: list  # coefficients should be provided in following order: [oxidant, reducing_agent, products].
 
     @property
     def compositions(self) -> list[Composition]:
