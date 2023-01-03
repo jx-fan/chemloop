@@ -28,5 +28,22 @@ class NetReaction:
         product_str = [p.reduced_formula for p in self.products]
         equation_str = []
         for coefficient, formula in zip(self.coefficients, reactant_str + product_str):
-            equation_str.append(str(abs(coefficient)) + " " + formula)
+            if abs(coefficient) != 1:
+                equation_str.append(str(abs(coefficient)) + " " + formula)
+            else:
+                equation_str.append(formula)
         return " + ".join(equation_str[:2]) + " -> " + " + ".join(equation_str[2:])
+
+    @property
+    def balanced(self) -> bool:
+        def tot_element_number(element, materials_list, coefficients):
+            return sum(m.get(element) * abs(c) for m, c in zip(materials_list, coefficients))
+
+        if all(tot_element_number(element, [self.oxidant, self.reducing_agent],
+                                  self.coefficients[:2]) == tot_element_number(element,
+                                                                               self.products, self.coefficients[2:])
+               for
+               element in self.chemical_system):
+            return True
+        else:
+            return False

@@ -131,7 +131,7 @@ class ChemicalLoopTwoStep(AbstractChemicalLoop):
     def __str__(self):
         rxns = [rxn.__str__() for rxn in self.subreactions]
         rxns.append("=" * len(max(rxns, key=len)))
-        rxns.append("Net rxn: " + str(self._net_rxn))
+        rxns.append("Net rxn: " + self._net_rxn.equation)
         return '\n'.join(rxns)
 
 

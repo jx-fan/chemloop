@@ -28,3 +28,5 @@ def test_equation(ammonia_synthesis):
     assert ammonia_synthesis.equation == "1 N2 + 3 H2 -> 2 H3N"
 
 
+def test_balanced(ammonia_synthesis):
+    assert ammonia_synthesis.balanced
