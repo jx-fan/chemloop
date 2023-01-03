@@ -14,6 +14,7 @@ def get_entries_from_api(chemsys) -> List[ComputedStructureEntry]:
     mp_api_key = os.getenv("MP_API_KEY") or ""
     with MPRester(mp_api_key) as mpr:
         entries = mpr.get_entries_in_chemsys(chemsys)
+        print("Materials Project database version: ", mpr.get_database_version())
     return entries
 
 
