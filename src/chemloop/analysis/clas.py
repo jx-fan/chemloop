@@ -3,6 +3,7 @@ Analysis of reaction pathways in Chemical Looping Ammonia Synthesis (CLAS)
 """
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from monty.serialization import loadfn
 from pymatgen.core.composition import Element, Composition
@@ -40,18 +41,6 @@ class AnalyseHydroPathwaySet:
         self.cost_method = cost_method
         self.max_combo = max_combo
 
-    @staticmethod
-    def arithmetic_cost(costs) -> float:
-        """
-        Calculate the arithmetic average of the costs
-        Args:
-            costs:
-
-        Returns:
-
-        """
-        return round(sum(costs) / len(costs), 3)
-
     @property
     def paths(self) -> list[BalancedPathway]:
         """
@@ -63,7 +52,7 @@ class AnalyseHydroPathwaySet:
         if self.cost_method == "mcdermott":
             return default_paths
         elif self.cost_method == "arithmetic":
-            return sorted(default_paths, key=lambda p: self.arithmetic_cost(p.costs))
+            return sorted(default_paths, key=lambda p: float(np.mean(p.costs)))
 
     @property
     def lowest_cost_pathway(self) -> BalancedPathway:
@@ -84,7 +73,7 @@ class AnalyseHydroPathwaySet:
         if self.cost_method == "mcdermott":
             return self.lowest_cost_pathway.average_cost
         elif self.cost_method == "arithmetic":
-            return self.arithmetic_cost(self.lowest_cost_pathway.costs)
+            return float(np.mean(self.lowest_cost_pathway.costs))
 
     @property
     def cations(self) -> list[Element]:
