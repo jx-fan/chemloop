@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from chemloop.analysis.clas import AnalyseHydroPathwaySet
+from chemloop.analysis.clas import AnalyseHydroPathwaySet, ammonia_yield_energy
 from monty.serialization import loadfn
 from pymatgen.core import Composition, Element
 from rxn_network.reactions.basic import BasicReaction
@@ -34,7 +34,7 @@ def test_paths(analyser, pathway_set):
     assert analyser.paths == sorted(pathway_set.get_paths(), key=lambda p: float(np.mean(p.costs)))
 
 
-def test_lowest_cost_pathway(analyser,pathway_set):
+def test_lowest_cost_pathway(analyser, pathway_set):
     assert analyser.lowest_cost_pathway == sorted(pathway_set.get_paths(), key=lambda p: float(np.mean(p.costs)))[0]
 
 
@@ -53,3 +53,24 @@ def test_from_file():
                                                           e_column_name="e",
                                                           normalize_to="NH3")
     assert analyser_from_file.oxide == Composition("NaMnO2")
+
+
+def test_net_rxn(analyser):
+    assert analyser.net_rxn == BasicReaction.from_string("H2O + 0.5 Mn2N + NaHO -> NaMnO2 + 0.5 H3N + 0.75 H2")
+
+
+def test_net_rxn_energy(analyser):
+    assert analyser.net_rxn_energy == -0.0792372224581654
+
+
+def test_nitride(analyser):
+    assert analyser.nitride == Composition("Mn2N")
+
+
+def test_oxide(analyser):
+    assert analyser.oxide == Composition("NaMnO2")
+
+
+def test_ammonia_yield_energy(analyser):
+    energy = ammonia_yield_energy(pathway=analyser.lowest_cost_pathway)
+    assert energy == pytest.approx(-0.0889902456607885)
