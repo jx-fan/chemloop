@@ -109,8 +109,8 @@ class AnalyseHydroPathwaySet:
 
     @classmethod
     def from_file(cls,
-                  file_pathway: Path,
-                  file_energy: Path,
+                  file_pathway: str,
+                  file_energy: str,
                   rxn_column_name: str,
                   e_column_name: str,
                   normalize_to: str,
@@ -131,6 +131,8 @@ class AnalyseHydroPathwaySet:
         Returns:
 
         """
+        file_pathway = Path(file_pathway)
+        file_energy = Path(file_energy)
         oxide, nitride = [Composition(formula) for formula in file_pathway.name.split("_")[:2]]
         df = pd.read_csv(file_energy, sep=";", index_col=[0, 1],
                          na_values='', keep_default_na=False,  # avoid filtering out sodium nitride (NaN)
