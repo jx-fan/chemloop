@@ -142,10 +142,9 @@ class AnalyseHydroPathwaySet:
         energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]  # eV/atom
         if normalize_to:
             normalized_net_rxn = net_rxn.normalize_to(Composition(normalize_to))
-            factor = normalized_net_rxn.num_atoms / net_rxn.num_atoms
             return cls(pathway_set=loadfn(file_pathway),
                        net_rxn=normalized_net_rxn,
-                       net_rxn_energy=energy * factor * normalized_net_rxn.num_atoms,  # eV
+                       net_rxn_energy=energy * normalized_net_rxn.num_atoms,  # eV
                        nitride=nitride,
                        oxide=oxide,
                        cost_method=cost_method,
