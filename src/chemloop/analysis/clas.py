@@ -113,7 +113,7 @@ class AnalyseHydroPathwaySet:
                   file_energy: str,
                   rxn_column_name: str,
                   e_column_name: str,
-                  normalize_to: None,
+                  normalize_to: str = None,
                   cost_method: str = "arithmetic",
                   max_combo: int = 5
                   ) -> "AnalyseHydroPathwaySet":
