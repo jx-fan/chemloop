@@ -33,13 +33,29 @@ class AnalyseHydroPathwaySet:
             cost_method:
             max_combo:
         """
-        self.pathway_set = pathway_set
-        self.net_reaction = net_rxn
-        self.net_reaction_energy = net_rxn_energy
-        self.nitride = nitride
-        self.oxide = oxide
+        self._pathway_set = pathway_set
+        self._net_rxn = net_rxn
+        self._net_rxn_energy = net_rxn_energy
+        self._nitride = nitride
+        self._oxide = oxide
         self.cost_method = cost_method
         self.max_combo = max_combo
+
+    @property
+    def net_rxn(self):
+        return self._net_rxn
+
+    @property
+    def net_rxn_energy(self):
+        return self._net_rxn_energy
+
+    @property
+    def nitride(self):
+        return self._nitride
+
+    @property
+    def oxide(self):
+        return self._oxide
 
     @property
     def paths(self) -> list[BalancedPathway]:
@@ -48,7 +64,7 @@ class AnalyseHydroPathwaySet:
         Returns:
 
         """
-        default_paths = [path for path in self.pathway_set.get_paths() if len(path.costs) <= self.max_combo]
+        default_paths = [path for path in self._pathway_set.get_paths() if len(path.costs) <= self.max_combo]
         if self.cost_method == "mcdermott":
             return default_paths
         elif self.cost_method == "arithmetic":
