@@ -144,7 +144,7 @@ class AnalyseHydroPathwaySet:
             normalized_net_rxn = net_rxn.normalize_to(Composition(normalize_to))
             return cls(pathway_set=loadfn(file_pathway),
                        net_rxn=normalized_net_rxn,
-                       net_rxn_energy=energy * normalized_net_rxn.num_atoms,  # eV
+                       net_rxn_energy=energy * normalized_net_rxn.num_atoms * 96,  # kJ/mol molecule
                        nitride=nitride,
                        oxide=oxide,
                        cost_method=cost_method,
@@ -179,6 +179,6 @@ def ammonia_yield_energy(pathway: BalancedPathway,
             ammonia_steps.append(r)
     if normalise_to_per_ammonia:
         ammonia_steps = [step.normalize_to(Composition("NH3")) for step in ammonia_steps]
-        return float(np.mean([r.energy for r in ammonia_steps]))  # eV
+        return float(np.mean([r.energy for r in ammonia_steps]) * 96)  # kJ/mol NH3
     else:
         return float(np.mean([r.energy_per_atom for r in ammonia_steps]))  # eV/atom
