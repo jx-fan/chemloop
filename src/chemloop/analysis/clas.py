@@ -113,7 +113,7 @@ class AnalyseHydroPathwaySet:
                   file_energy: str,
                   rxn_column_name: str,
                   e_column_name: str,
-                  normalize_to: str,
+                  normalize_to: None,
                   cost_method: str = "arithmetic",
                   max_combo: int = 5
                   ) -> "AnalyseHydroPathwaySet":
@@ -139,21 +139,31 @@ class AnalyseHydroPathwaySet:
                          )
         net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula),
                                                    rxn_column_name])
-        energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]
-        normalized_net_rxn = net_rxn.normalize_to(Composition(normalize_to))
-        factor = normalized_net_rxn.num_atoms / net_rxn.num_atoms
-        return cls(pathway_set=loadfn(file_pathway),
-                   net_rxn=normalized_net_rxn,
-                   net_rxn_energy=energy * factor,
-                   nitride=nitride,
-                   oxide=oxide,
-                   cost_method=cost_method,
-                   max_combo=max_combo
-                   )
+        energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]  # eV/atom
+        if normalize_to:
+            normalized_net_rxn = net_rxn.normalize_to(Composition(normalize_to))
+            factor = normalized_net_rxn.num_atoms / net_rxn.num_atoms
+            return cls(pathway_set=loadfn(file_pathway),
+                       net_rxn=normalized_net_rxn,
+                       net_rxn_energy=energy * factor * normalized_net_rxn.num_atoms,  # eV
+                       nitride=nitride,
+                       oxide=oxide,
+                       cost_method=cost_method,
+                       max_combo=max_combo
+                       )
+        else:
+            return cls(pathway_set=loadfn(file_pathway),
+                       net_rxn=net_rxn,
+                       net_rxn_energy=energy,
+                       nitride=nitride,
+                       oxide=oxide,
+                       cost_method=cost_method,
+                       max_combo=max_combo
+                       )
 
 
 def ammonia_yield_energy(pathway: BalancedPathway,
-                         normalise_to_per_ammonia: bool = True
+                         normalise_to_per_ammonia: bool = True,
                          ) -> float:
     """
 
@@ -170,4 +180,6 @@ def ammonia_yield_energy(pathway: BalancedPathway,
             ammonia_steps.append(r)
     if normalise_to_per_ammonia:
         ammonia_steps = [step.normalize_to(Composition("NH3")) for step in ammonia_steps]
-    return sum([r.energy for r in ammonia_steps]) / len(ammonia_steps)
+        return float(np.mean([r.energy for r in ammonia_steps]))  # eV
+    else:
+        return float(np.mean([r.energy_per_atom for r in ammonia_steps]))  # eV/atom
