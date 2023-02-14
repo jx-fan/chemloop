@@ -41,20 +41,42 @@ class AnalyseHydroPathwaySet:
         self.cost_method = cost_method
         self.max_combo = max_combo
 
+    @staticmethod
+    def softplus(t: float,
+                 e: float) -> float:
+        """
+        Simple Softplus function that only takes temperature and reaction energy as input.
+        Args:
+            t:
+            e:
+
+        Returns:
+
+        """
+        return np.log(1 + (273 / t) * np.exp(e))
+
     @property
-    def net_rxn(self):
+    def net_rxn_cost(self) -> float:
+        return self.softplus(self.temperature, self.net_rxn_energy)
+
+    @property
+    def temperature(self) -> float:
+        return list(self.lowest_cost_pathway.entries)[0].temperature
+
+    @property
+    def net_rxn(self) -> BasicReaction:
         return self._net_rxn
 
     @property
-    def net_rxn_energy(self):
+    def net_rxn_energy(self) -> float:
         return self._net_rxn_energy
 
     @property
-    def nitride(self):
+    def nitride(self) -> Composition:
         return self._nitride
 
     @property
-    def oxide(self):
+    def oxide(self) -> Composition:
         return self._oxide
 
     @property

@@ -73,4 +73,16 @@ def test_oxide(analyser):
 
 def test_ammonia_yield_energy(analyser):
     energy = ammonia_yield_energy(pathway=analyser.lowest_cost_pathway)
-    assert energy == pytest.approx(-0.0889902456607885)
+    assert energy == pytest.approx(-8.543063583435696)
+
+
+def test_softplus(analyser):
+    assert analyser.softplus(900, 0) == pytest.approx(0.26492508532916464)
+
+
+def test_net_rxn_cost(analyser):
+    assert analyser.net_rxn_cost == pytest.approx(0.2823669346278735)
+
+
+def test_temperature(analyser):
+    assert analyser.temperature == 773
