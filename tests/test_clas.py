@@ -85,7 +85,7 @@ def test_softplus(analyser):
 
 
 def test_net_rxn_cost(analyser):
-    assert analyser.net_rxn_cost() == pytest.approx(0.2823669346278735)
+    assert analyser.net_rxn_cost == pytest.approx(0.2823669346278735)
 
 
 def test_temperature(analyser):
