@@ -2,10 +2,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from chemloop.analysis.clas import AnalyseHydroPathwaySet, ammonia_yield_energy
+from chemloop.analysis.clas import AnalyseHydroPathwaySet
 from monty.serialization import loadfn
 from pymatgen.core import Composition, Element
 from rxn_network.reactions.basic import BasicReaction
+
+from src.chemloop.analysis.clas import limiting_step, ammonia_yield_steps
 
 TEST_FILES_PATH = Path(__file__).parent / "test_files"
 PATHWAY_FILE = "NaMnO2_Mn2N_paths.json.gz"
@@ -71,8 +73,10 @@ def test_oxide(analyser):
     assert analyser.oxide == Composition("NaMnO2")
 
 
-def test_ammonia_yield_energy(analyser):
-    energy = ammonia_yield_energy(pathway=analyser.lowest_cost_pathway)
+def test_ammonia_yield_steps(analyser):
+    reactions, energy = ammonia_yield_steps(pathway=analyser.lowest_cost_pathway,
+                                            net_rxn=analyser.net_rxn)
+    assert reactions == analyser.lowest_cost_pathway.reactions[-2:-1]
     assert energy == pytest.approx(-8.543063583435696)
 
 
@@ -81,8 +85,15 @@ def test_softplus(analyser):
 
 
 def test_net_rxn_cost(analyser):
-    assert analyser.net_rxn_cost == pytest.approx(0.2823669346278735)
+    assert analyser.net_rxn_cost() == pytest.approx(0.2823669346278735)
 
 
 def test_temperature(analyser):
     assert analyser.temperature == 773
+
+
+def test_limiting_step(analyser):
+    reaction, energy = limiting_step(analyser.lowest_cost_pathway,
+                                     analyser.net_rxn)
+    assert reaction == analyser.lowest_cost_pathway.reactions[1]
+    assert energy == pytest.approx(18.225428049376177)
