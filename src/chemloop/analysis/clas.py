@@ -138,7 +138,6 @@ class AnalyseHydroPathwaySet:
                   file_energy: str,
                   rxn_column_name: str,
                   e_column_name: str,
-                  normalize_to: str = None,
                   cost_method: str = "arithmetic",
                   max_combo: int = 5
                   ) -> "AnalyseHydroPathwaySet":
@@ -165,25 +164,14 @@ class AnalyseHydroPathwaySet:
         net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula),
                                                    rxn_column_name])
         energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]  # eV/atom
-        if normalize_to:
-            normalized_net_rxn = net_rxn.normalize_to(Composition(normalize_to))
-            return cls(pathway_set=loadfn(file_pathway),
-                       net_rxn=normalized_net_rxn,
-                       net_rxn_energy=energy * normalized_net_rxn.num_atoms * 96,  # kJ/mol molecule
-                       nitride=nitride,
-                       oxide=oxide,
-                       cost_method=cost_method,
-                       max_combo=max_combo
-                       )
-        else:
-            return cls(pathway_set=loadfn(file_pathway),
-                       net_rxn=net_rxn,
-                       net_rxn_energy=energy,
-                       nitride=nitride,
-                       oxide=oxide,
-                       cost_method=cost_method,
-                       max_combo=max_combo
-                       )
+        return cls(pathway_set=loadfn(file_pathway),
+                   net_rxn=net_rxn,
+                   net_rxn_energy=energy,
+                   nitride=nitride,
+                   oxide=oxide,
+                   cost_method=cost_method,
+                   max_combo=max_combo
+                   )
 
 
 def balanced_reactions(pathway: BalancedPathway) -> list[ComputedReaction]:

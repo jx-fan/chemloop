@@ -52,8 +52,8 @@ def test_from_file():
     analyser_from_file = AnalyseHydroPathwaySet.from_file(file_pathway=TEST_FILES_PATH / PATHWAY_FILE,
                                                           file_energy=TEST_FILES_PATH / "results_tot_NaOH_773K.csv",
                                                           rxn_column_name="sub_rxn",
-                                                          e_column_name="e",
-                                                          normalize_to="NH3")
+                                                          e_column_name="e"
+                                                          )
     assert analyser_from_file.oxide == Composition("NaMnO2")
 
 
