@@ -56,11 +56,9 @@ class AnalyseHydroPathwaySet:
         """
         return np.log(1 + (273 / t) * np.exp(e))
 
-    def net_rxn_cost(self, normalised=False) -> float:
-        if normalised:
-            return self.softplus(self.temperature, self.net_rxn_energy / self.net_rxn.num_atoms / 96)
-        else:
-            return self.softplus(self.temperature, self.net_rxn_energy)
+    @property
+    def net_rxn_cost(self) -> float:
+        return self.softplus(self.temperature, self.net_rxn_energy)
 
     @property
     def temperature(self) -> float:
