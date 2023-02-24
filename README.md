@@ -7,5 +7,9 @@ Clone this repository using **git clone** then install using **pip**:
 ```sh
 pip install .
 ```
+For developers:
+```sh
+pip install -e .
+```
 
 # Citation
