@@ -27,7 +27,7 @@ class ReactionFilter(AbstractPathwayFilter):
 
     def __init__(self,
                  rxns_to_include: set[BasicReaction],
-                 rxns_to_exclude: set[BasicReaction] = None,
+                 rxns_to_exclude = None,
                  filter_reactants_only: bool = True
                  ):
         """

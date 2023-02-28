@@ -12,7 +12,7 @@ from rxn_network.pathways.pathway_set import PathwaySet
 from rxn_network.reactions.basic import BasicReaction
 from rxn_network.reactions.computed import ComputedReaction
 
-from src.chemloop.analysis.filter import AbstractPathwayFilter
+from chemloop.analysis.filter import AbstractPathwayFilter
 
 
 class AnalyseHydroPathwaySet:
