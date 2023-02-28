@@ -143,11 +143,13 @@ class AnalyseHydroPathwaySet:
                   rxn_column_name: str,
                   e_column_name: str,
                   cost_method: str = "arithmetic",
-                  max_combo: int = 5
+                  max_combo: int = 5,
+                  pathway_filter: AbstractPathwayFilter = None,
                   ) -> "AnalyseHydroPathwaySet":
         """
         Customised method for loading pre-calculated data.
         Args:
+            pathway_filter:
             max_combo:
             cost_method:
             normalize_to:
@@ -165,8 +167,7 @@ class AnalyseHydroPathwaySet:
         df = pd.read_csv(file_energy, sep=";", index_col=[0, 1],
                          na_values='', keep_default_na=False,  # avoid filtering out sodium nitride (NaN)
                          )
-        net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula),
-        rxn_column_name])
+        net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula), rxn_column_name])
         energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]  # eV/atom
         return cls(pathway_set=loadfn(file_pathway),
                    net_rxn=net_rxn,
@@ -174,7 +175,8 @@ class AnalyseHydroPathwaySet:
                    nitride=nitride,
                    oxide=oxide,
                    cost_method=cost_method,
-                   max_combo=max_combo
+                   max_combo=max_combo,
+                   pathway_filter=pathway_filter
                    )
 
 
