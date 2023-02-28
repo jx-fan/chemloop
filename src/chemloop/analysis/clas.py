@@ -12,6 +12,8 @@ from rxn_network.pathways.pathway_set import PathwaySet
 from rxn_network.reactions.basic import BasicReaction
 from rxn_network.reactions.computed import ComputedReaction
 
+from src.chemloop.analysis.filter import AbstractPathwayFilter
+
 
 class AnalyseHydroPathwaySet:
     def __init__(self,
@@ -20,6 +22,7 @@ class AnalyseHydroPathwaySet:
                  net_rxn_energy: float,
                  nitride: Composition,
                  oxide: Composition,
+                 pathway_filter: AbstractPathwayFilter = None,
                  cost_method: str = "arithmetic",
                  max_combo: int = 5
                  ):
@@ -34,7 +37,10 @@ class AnalyseHydroPathwaySet:
             cost_method:
             max_combo:
         """
-        self._pathway_set = pathway_set
+        if pathway_filter:
+            self._pathway_set = pathway_filter.filter(pathway_set)
+        else:
+            self._pathway_set = pathway_set
         self._net_rxn = net_rxn
         self._net_rxn_energy = net_rxn_energy
         self._nitride = nitride
@@ -160,7 +166,7 @@ class AnalyseHydroPathwaySet:
                          na_values='', keep_default_na=False,  # avoid filtering out sodium nitride (NaN)
                          )
         net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula),
-                                                   rxn_column_name])
+        rxn_column_name])
         energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]  # eV/atom
         return cls(pathway_set=loadfn(file_pathway),
                    net_rxn=net_rxn,
