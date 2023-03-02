@@ -12,6 +12,8 @@ from rxn_network.pathways.pathway_set import PathwaySet
 from rxn_network.reactions.basic import BasicReaction
 from rxn_network.reactions.computed import ComputedReaction
 
+from chemloop.analysis.filter import AbstractPathwayFilter
+
 
 class AnalyseHydroPathwaySet:
     def __init__(self,
@@ -20,6 +22,7 @@ class AnalyseHydroPathwaySet:
                  net_rxn_energy: float,
                  nitride: Composition,
                  oxide: Composition,
+                 pathway_filter: AbstractPathwayFilter = None,
                  cost_method: str = "arithmetic",
                  max_combo: int = 5
                  ):
@@ -34,11 +37,12 @@ class AnalyseHydroPathwaySet:
             cost_method:
             max_combo:
         """
-        self._pathway_set = pathway_set
         self._net_rxn = net_rxn
         self._net_rxn_energy = net_rxn_energy
         self._nitride = nitride
         self._oxide = oxide
+        self._pathway_set = pathway_set
+        self.pathway_filter = pathway_filter
         self.cost_method = cost_method
         self.max_combo = max_combo
 
@@ -55,6 +59,13 @@ class AnalyseHydroPathwaySet:
 
         """
         return np.log(1 + (273 / t) * np.exp(e))
+
+    @property
+    def pathway_set(self):
+        if self.pathway_filter:
+            return self.pathway_filter.filter(self._pathway_set)
+        else:
+            return self._pathway_set
 
     @property
     def net_rxn_cost(self) -> float:
@@ -87,7 +98,7 @@ class AnalyseHydroPathwaySet:
         Returns:
 
         """
-        default_paths = [path for path in self._pathway_set.get_paths() if len(path.costs) <= self.max_combo]
+        default_paths = [path for path in self.pathway_set.get_paths() if len(path.costs) <= self.max_combo]
         if self.cost_method == "mcdermott":
             return default_paths
         elif self.cost_method == "arithmetic":
@@ -137,11 +148,13 @@ class AnalyseHydroPathwaySet:
                   rxn_column_name: str,
                   e_column_name: str,
                   cost_method: str = "arithmetic",
-                  max_combo: int = 5
+                  max_combo: int = 5,
+                  pathway_filter: AbstractPathwayFilter = None,
                   ) -> "AnalyseHydroPathwaySet":
         """
         Customised method for loading pre-calculated data.
         Args:
+            pathway_filter:
             max_combo:
             cost_method:
             normalize_to:
@@ -159,8 +172,7 @@ class AnalyseHydroPathwaySet:
         df = pd.read_csv(file_energy, sep=";", index_col=[0, 1],
                          na_values='', keep_default_na=False,  # avoid filtering out sodium nitride (NaN)
                          )
-        net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula),
-                                                   rxn_column_name])
+        net_rxn = BasicReaction.from_string(df.loc[(oxide.reduced_formula, nitride.reduced_formula), rxn_column_name])
         energy = df.loc[(oxide.reduced_formula, nitride.reduced_formula), e_column_name]  # eV/atom
         return cls(pathway_set=loadfn(file_pathway),
                    net_rxn=net_rxn,
@@ -168,7 +180,8 @@ class AnalyseHydroPathwaySet:
                    nitride=nitride,
                    oxide=oxide,
                    cost_method=cost_method,
-                   max_combo=max_combo
+                   max_combo=max_combo,
+                   pathway_filter=pathway_filter
                    )
 
 
