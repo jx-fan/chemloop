@@ -18,10 +18,10 @@ from chemloop.analysis.filter import AbstractPathwayFilter
 class AnalyseHydroPathwaySet:
     def __init__(self,
                  pathway_set: PathwaySet,
-                 net_rxn: BasicReaction,
-                 net_rxn_energy: float,
                  nitride: Composition,
                  oxide: Composition,
+                 net_rxn: BasicReaction = None,
+                 net_rxn_energy: float = None,
                  pathway_filter: AbstractPathwayFilter = None,
                  cost_method: str = "arithmetic",
                  max_combo: int = 5
@@ -186,6 +186,14 @@ class AnalyseHydroPathwaySet:
 
 
 def balanced_reactions(pathway: BalancedPathway) -> list[ComputedReaction]:
+    """
+    
+    Args:
+        pathway:
+
+    Returns:
+
+    """
     return [ComputedReaction(r.entries, r.coefficients * c)
             for r, c in zip(pathway.reactions, pathway.coefficients)]
 
@@ -220,6 +228,16 @@ def limiting_step(pathway: BalancedPathway,
                   net_rxn: BasicReaction,
                   normalise_to_per_ammonia: bool = True,
                   ) -> tuple[ComputedReaction, float]:
+    """
+
+    Args:
+        pathway:
+        net_rxn:
+        normalise_to_per_ammonia:
+
+    Returns:
+
+    """
     sorted_reactions = sorted(balanced_reactions(pathway), key=lambda x: x.energy)
     if not normalise_to_per_ammonia:
         return sorted_reactions[-1], sorted_reactions[-1].energy  # eV/atom
