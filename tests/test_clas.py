@@ -2,7 +2,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from chemloop.analysis.clas import AnalyseHydroPathwaySet
+from rxn_network.reactions.computed import ComputedReaction
+
+from chemloop.analysis.clas import AnalyseHydroPathwaySet, balanced_reactions, normalised_reactions
 from monty.serialization import loadfn
 from pymatgen.core import Composition, Element
 from rxn_network.reactions.basic import BasicReaction
@@ -60,8 +62,20 @@ def test_analyser_path_filter(pathway_set, analyser_with_filter, reaction_to_inc
     assert analyser.lowest_cost_pathway == analyser_with_filter.lowest_cost_pathway
 
 
+def test_softplus(analyser):
+    assert analyser.softplus(900, 0) == pytest.approx(0.26492508532916464)
+
+
 def test_pathway_set(analyser, pathway_set):
     assert analyser.pathway_set == pathway_set
+
+
+def test_net_rxn_cost(analyser):
+    assert analyser.net_rxn_cost == pytest.approx(0.26728068094549096)
+
+
+def test_temperature(analyser):
+    assert analyser.temperature == 773
 
 
 def test_paths(analyser, pathway_set):
@@ -109,23 +123,27 @@ def test_oxide(analyser):
     assert analyser.oxide == Composition("MnO")
 
 
+def test_balanced_reactions(lowest_cost_pathway_default):
+    coefficients = [0.5, 0.25, 0.5, 0.25]
+    assert balanced_reactions(lowest_cost_pathway_default) == [ComputedReaction(r.entries, r.coefficients * c)
+                                                               for r, c in zip(lowest_cost_pathway_default.reactions,
+                                                                               coefficients)]
+
+
+def test_normalised_pathway(lowest_cost_pathway_default):
+    net_rxn_original = BasicReaction.from_string("0.5 Mn2N + H2O -> 0.5 NH3 + MnO + 0.25 H2")
+    pathway_normalised = normalised_reactions(pathway=lowest_cost_pathway_default,
+                                              net_rxn=net_rxn_original,
+                                              normalise_to="NH3")
+    assert pathway_normalised == [ComputedReaction(r.entries, r.coefficients * 2)
+                                  for r in balanced_reactions(lowest_cost_pathway_default)]
+
+
 def test_ammonia_yield_steps(analyser):
     reactions, energy = ammonia_yield_steps(pathway=analyser.lowest_cost_pathway,
                                             net_rxn=analyser.net_rxn)
     assert reactions == analyser.lowest_cost_pathway.reactions[-2:-1]
     assert energy == pytest.approx(0.6686309157599197)
-
-
-def test_softplus(analyser):
-    assert analyser.softplus(900, 0) == pytest.approx(0.26492508532916464)
-
-
-def test_net_rxn_cost(analyser):
-    assert analyser.net_rxn_cost == pytest.approx(0.26728068094549096)
-
-
-def test_temperature(analyser):
-    assert analyser.temperature == 773
 
 
 def test_limiting_step(analyser):

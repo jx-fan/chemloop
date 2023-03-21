@@ -198,6 +198,24 @@ def balanced_reactions(pathway: BalancedPathway) -> list[ComputedReaction]:
             for r, c in zip(pathway.reactions, pathway.coefficients)]
 
 
+def normalised_reactions(pathway: BalancedPathway,
+                         net_rxn: BasicReaction,
+                         normalise_to: str) -> list[ComputedReaction]:
+    """
+    Get normalised reactions in a pathway.
+    Args:
+        pathway:
+        net_rxn:
+        normalise_to:
+
+    Returns:
+
+    """
+    pathway = balanced_reactions(pathway)
+    factor = net_rxn.normalize_to(Composition(normalise_to)).coefficients[0] / net_rxn.coefficients[0]
+    return [ComputedReaction(r.entries, r.coefficients * factor) for r in pathway]
+
+
 def ammonia_yield_steps(pathway: BalancedPathway,
                         net_rxn: BasicReaction,
                         normalise_to_per_ammonia: bool = True,
@@ -213,14 +231,15 @@ def ammonia_yield_steps(pathway: BalancedPathway,
 
     """
     ammonia_steps = []
-    for r in balanced_reactions(pathway):
-        if Composition("NH3") in r.products:
-            ammonia_steps.append(r)
     if normalise_to_per_ammonia:
-        factor = net_rxn.normalize_to(Composition("NH3")).coefficients[0] / net_rxn.coefficients[0]
-        ammonia_steps = [ComputedReaction(r.entries, r.coefficients * factor) for r in ammonia_steps]
+        for r in normalised_reactions(pathway, net_rxn, normalise_to="NH3"):
+            if Composition("NH3") in r.products:
+                ammonia_steps.append(r)
         return ammonia_steps, float(np.mean([r.energy for r in ammonia_steps]) * 96)  # kJ/mol NH3
     else:
+        for r in balanced_reactions(pathway):
+            if Composition("NH3") in r.products:
+                ammonia_steps.append(r)
         return ammonia_steps, float(np.mean([r.energy_per_atom for r in ammonia_steps]))  # eV/atom
 
 
@@ -238,11 +257,9 @@ def limiting_step(pathway: BalancedPathway,
     Returns:
 
     """
-    sorted_reactions = sorted(balanced_reactions(pathway), key=lambda x: x.energy)
-    if not normalise_to_per_ammonia:
-        return sorted_reactions[-1], sorted_reactions[-1].energy  # eV/atom
+    if normalise_to_per_ammonia:
+        sorted_reactions = sorted(normalised_reactions(pathway, net_rxn, "NH3"), key=lambda x: x.energy)
+        return sorted_reactions[-1], sorted_reactions[-1].energy * 96  # kJ/mol NH3
     else:
-        factor = net_rxn.normalize_to(Composition("NH3")).coefficients[0] / net_rxn.coefficients[0]
-        limiting_rxn = ComputedReaction(sorted_reactions[-1].entries,
-                                        sorted_reactions[-1].coefficients * factor)
-        return limiting_rxn, limiting_rxn.energy * 96  # kJ/mol NH3
+        sorted_reactions = sorted(balanced_reactions(pathway), key=lambda x: x.energy)
+        return sorted_reactions[-1], sorted_reactions[-1].energy  # eV/atom
