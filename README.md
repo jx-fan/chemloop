@@ -11,5 +11,3 @@ For developers:
 ```sh
 pip install -e .
 ```
-
-# Citation
